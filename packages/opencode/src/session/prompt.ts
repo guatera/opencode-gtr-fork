@@ -1418,8 +1418,8 @@ export const layer = Layer.effect(
               MessageV2.toModelMessagesEffect(msgs, model),
             ])
             const system =
-              input.system?.startsWith(HARNESS_SYSTEM_SENTINEL_PREFIX)
-                ? [input.system.slice(HARNESS_SYSTEM_SENTINEL_PREFIX.length)]
+              lastUser.system?.startsWith(HARNESS_SYSTEM_SENTINEL_PREFIX)
+                ? [lastUser.system.slice(HARNESS_SYSTEM_SENTINEL_PREFIX.length)]
                 : [...env, ...instructions, ...(skills ? [skills] : [])]
             const format = lastUser.format ?? { type: "text" as const }
             if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
