@@ -102,6 +102,12 @@ export interface EventsInput {
   readonly after?: EventCursor
 }
 
+export const InjectSyntheticInput = Schema.Struct({
+  sessionID: ID,
+  text: Schema.String,
+})
+export type InjectSyntheticInput = typeof InjectSyntheticInput.Type
+
 export interface Interface {
   readonly create: (input: CreateInput) => Effect.Effect<Info>
   readonly get: (sessionID: ID) => Effect.Effect<Info, NotFoundError>
@@ -116,4 +122,6 @@ export interface Interface {
   readonly message: (input: MessageInput) => Effect.Effect<Message | undefined>
   readonly context: (sessionID: ID) => Effect.Effect<Message[], NotFoundError | MessageDecodeError>
   readonly events: (input: EventsInput) => Stream.Stream<Event, NotFoundError>
+  /** Inject a synthetic assistant message into a session. Used by an external harness to construct context node-by-node. */
+  readonly injectSynthetic: (input: InjectSyntheticInput) => Effect.Effect<SessionMessage.Synthetic, NotFoundError>
 }

@@ -394,6 +394,24 @@ export const layer = Layer.effect(
           model: input.model,
         })
       }),
+      injectSynthetic: Effect.fn("V2Session.injectSynthetic")(function* (input) {
+        yield* result.get(input.sessionID)
+        const messageID = SessionMessage.ID.create()
+        const timestamp = yield* DateTime.now
+        yield* events.publish(SessionEvent.Synthetic, {
+          sessionID: input.sessionID,
+          messageID,
+          timestamp,
+          text: input.text,
+        })
+        return new SessionMessage.Synthetic({
+          id: messageID,
+          sessionID: input.sessionID,
+          text: input.text,
+          type: "synthetic",
+          time: { created: timestamp },
+        })
+      }),
       compact: Effect.fn("V2Session.compact")(function* (input) {
         yield* result.get(input.sessionID)
         return yield* new OperationUnavailableError({ operation: "compact" })

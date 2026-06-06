@@ -5,6 +5,10 @@ import { HttpApiEndpoint, HttpApiGroup, OpenApi } from "effect/unstable/httpapi"
 import { InvalidCursorError, SessionNotFoundError, UnknownError } from "../../errors"
 import { V2Authorization } from "../../middleware/authorization"
 
+export const InjectSyntheticBody = Schema.Struct({
+  text: Schema.String.annotate({ description: "Text content of the synthetic assistant message." }),
+}).annotate({ identifier: "V2InjectSyntheticBody" })
+
 export const MessagesQuery = Schema.Struct({
   limit: Schema.optional(
     Schema.NumberFromString.check(Schema.isInt(), Schema.isGreaterThanOrEqualTo(1), Schema.isLessThanOrEqualTo(200)),
@@ -41,6 +45,21 @@ export const MessageGroup = HttpApiGroup.make("v2.message")
         summary: "Get v2 session messages",
         description:
           "Retrieve projected v2 messages for a session. Items keep the requested order across pages; use cursor.next or cursor.previous to move through the ordered timeline.",
+      }),
+    ),
+  )
+  .add(
+    HttpApiEndpoint.post("injectMessage", "/api/session/:sessionID/message", {
+      params: { sessionID: SessionV2.ID },
+      payload: InjectSyntheticBody,
+      success: SessionMessage.Message,
+      error: [SessionNotFoundError, UnknownError],
+    }).annotateMerge(
+      OpenApi.annotations({
+        identifier: "v2.session.injectMessage",
+        summary: "Inject a synthetic assistant message",
+        description:
+          "Write a synthetic assistant message into a session. Used by an external harness to construct session context node-by-node without triggering an LLM completion.",
       }),
     ),
   )

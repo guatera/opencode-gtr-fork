@@ -79,6 +79,26 @@ export const messageHandlers = HttpApiBuilder.group(V2Api, "v2.message", (handle
           },
         }
       }),
+    ).handle(
+      "injectMessage",
+      Effect.fn(function* (ctx) {
+        const message = yield* session
+          .injectSynthetic({
+            sessionID: ctx.params.sessionID,
+            text: ctx.payload.text,
+          })
+          .pipe(
+            Effect.catchTag("Session.NotFoundError", (error) =>
+              Effect.fail(
+                new SessionNotFoundError({
+                  sessionID: error.sessionID,
+                  message: `Session not found: ${error.sessionID}`,
+                }),
+              ),
+            ),
+          )
+        return message
+      }),
     )
   }),
 )

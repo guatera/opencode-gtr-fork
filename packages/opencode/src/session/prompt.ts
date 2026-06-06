@@ -80,6 +80,10 @@ IMPORTANT:
 
 const STRUCTURED_OUTPUT_SYSTEM_PROMPT = `IMPORTANT: The user has requested structured output. You MUST use the StructuredOutput tool to provide your final response. Do NOT respond with plain text - you MUST call the StructuredOutput tool with your answer formatted according to the schema.`
 
+// When PromptInput.system starts with this prefix, the Harness owns the full system prompt.
+// The prefix is stripped and the remainder replaces opencode's env+instructions+skills assembly.
+export const HARNESS_SYSTEM_SENTINEL_PREFIX = "__harness__"
+
 const log = Log.create({ service: "session.prompt" })
 const elog = EffectLogger.create({ service: "session.prompt" })
 
@@ -1413,7 +1417,10 @@ export const layer = Layer.effect(
               instruction.system().pipe(Effect.orDie),
               MessageV2.toModelMessagesEffect(msgs, model),
             ])
-            const system = [...env, ...instructions, ...(skills ? [skills] : [])]
+            const system =
+              input.system?.startsWith(HARNESS_SYSTEM_SENTINEL_PREFIX)
+                ? [input.system.slice(HARNESS_SYSTEM_SENTINEL_PREFIX.length)]
+                : [...env, ...instructions, ...(skills ? [skills] : [])]
             const format = lastUser.format ?? { type: "text" as const }
             if (format.type === "json_schema") system.push(STRUCTURED_OUTPUT_SYSTEM_PROMPT)
             const result = yield* handle.process({
