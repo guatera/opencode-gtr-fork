@@ -80,7 +80,7 @@ IMPORTANT:
 
 const STRUCTURED_OUTPUT_SYSTEM_PROMPT = `IMPORTANT: The user has requested structured output. You MUST use the StructuredOutput tool to provide your final response. Do NOT respond with plain text - you MUST call the StructuredOutput tool with your answer formatted according to the schema.`
 
-// When PromptInput.system starts with this prefix, the Harness owns the full system prompt.
+// When PromptInput.system starts with this prefix, the caller owns the full system prompt verbatim.
 // The prefix is stripped and the remainder replaces opencode's env+instructions+skills assembly.
 export const HARNESS_SYSTEM_SENTINEL_PREFIX = "__harness__"
 
