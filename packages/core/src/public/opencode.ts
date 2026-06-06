@@ -122,6 +122,7 @@ export const layer = Layer.effect(
         message: (input) => sessions.message({ sessionID: input.sessionID, messageID: input.messageID }),
         context: sessions.context,
         events: (input) => sessions.events({ sessionID: input.sessionID, after: input.after }),
+        injectSynthetic: (input) => sessions.injectSynthetic({ sessionID: input.sessionID, text: input.text }),
       },
     })
   }),

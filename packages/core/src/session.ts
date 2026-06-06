@@ -156,6 +156,10 @@ export interface Interface {
   readonly wait: (id: SessionSchema.ID) => Effect.Effect<void, NotFoundError | OperationUnavailableError>
   readonly resume: (sessionID: SessionSchema.ID) => Effect.Effect<void, NotFoundError | SessionRunner.RunError>
   readonly interrupt: (sessionID: SessionSchema.ID) => Effect.Effect<void>
+  readonly injectSynthetic: (input: {
+    sessionID: SessionSchema.ID
+    text: string
+  }) => Effect.Effect<SessionMessage.Synthetic, NotFoundError>
 }
 
 export class Service extends Context.Service<Service, Interface>()("@opencode/v2/Session") {}
